@@ -2,6 +2,7 @@
 import heapq
 
 import numpy as np
+
 np.set_printoptions(threshold=np.inf)
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -14,10 +15,7 @@ from priority_queue.priority_queue import priority_queue
 
 
 class d_star_lite:
-
     def __init__(self, start_point, end_point, graph, img, R):
-
-
         self.rhs = {}
         self.g = {}
         self.h = {}
@@ -28,15 +26,36 @@ class d_star_lite:
 
         self.cost = {}
 
-        self.neighbours = [(1, 0), (0, 1), (-1, 0), (0, -1), (1, -1), (-1, 1), (1, 1), (-1, -1)]
-        self.neighbours2 = [(0, 0), (1, 0), (0, 1), (-1, 0), (0, -1), (1, -1), (-1, 1), (1, 1), (-1, -1)]
+        self.neighbours = [
+            (1, 0),
+            (0, 1),
+            (-1, 0),
+            (0, -1),
+            (1, -1),
+            (-1, 1),
+            (1, 1),
+            (-1, -1),
+        ]
+        self.neighbours2 = [
+            (0, 0),
+            (1, 0),
+            (0, 1),
+            (-1, 0),
+            (0, -1),
+            (1, -1),
+            (-1, 1),
+            (1, 1),
+            (-1, -1),
+        ]
 
         self.position = start_point
         self.start_point = start_point
         self.end_point = end_point
 
         self.shape_ersize = 64
-        graph = cv2.resize(graph, (self.shape_ersize, self.shape_ersize), interpolation = cv2.INTER_AREA)
+        graph = cv2.resize(
+            graph, (self.shape_ersize, self.shape_ersize), interpolation=cv2.INTER_AREA
+        )
 
         self.oryginal_graph = graph
         self.new_graph = graph
@@ -46,24 +65,35 @@ class d_star_lite:
         self.img = img.copy()
         self.img_to_go = img.copy()
 
-        self.orginal_img = cv2.resize(self.orginal_img, (self.shape_ersize, self.shape_ersize), interpolation = cv2.INTER_AREA)
-        self.img = cv2.resize(self.img, (self.shape_ersize, self.shape_ersize), interpolation = cv2.INTER_AREA)
-        self.img_to_go = cv2.resize(self.img_to_go, (self.shape_ersize, self.shape_ersize), interpolation = cv2.INTER_AREA)
+        self.orginal_img = cv2.resize(
+            self.orginal_img,
+            (self.shape_ersize, self.shape_ersize),
+            interpolation=cv2.INTER_AREA,
+        )
+        self.img = cv2.resize(
+            self.img,
+            (self.shape_ersize, self.shape_ersize),
+            interpolation=cv2.INTER_AREA,
+        )
+        self.img_to_go = cv2.resize(
+            self.img_to_go,
+            (self.shape_ersize, self.shape_ersize),
+            interpolation=cv2.INTER_AREA,
+        )
 
         self.path = []
 
         self.R = R
-        # print('self.R=', self.R)
 
         self.slope = 300
 
-        self.mask = np.zeros((self.oryginal_graph.shape[0], self.oryginal_graph.shape[1]), np.uint8)
+        self.mask = np.zeros(
+            (self.oryginal_graph.shape[0], self.oryginal_graph.shape[1]), np.uint8
+        )
         self.mask[:] = 255
 
         cv2.circle(self.mask, start_point, self.R, (0, 0, 0), -1)
         self.new_graph = cv2.add(self.oryginal_graph, self.mask)
-        # self.new_graph = cv2.bitwise_not(self.new_graph)
-        # self.new_graph[self.new_graph == 100] = 101
         self.new_graph[self.new_graph == 255] = 100
         self.old_graph = self.new_graph
 
@@ -78,18 +108,19 @@ class d_star_lite:
         self.open_set2.insert(self.end_point, (self.h[self.end_point], 0))
 
     def calc_key(self, point):
-
         key1 = min(self.g[point], self.rhs[point]) + self.h[point] + self.K_m
         key2 = min(self.g[point], self.rhs[point])
 
         return key1, key2
 
     def calc_cost(self, point_a, point_b, graph_):
-        cost = abs(graph_[point_a[1]][point_a[0]].astype(int) - graph_[point_b[1]][point_b[0]].astype(int))
+        cost = abs(
+            graph_[point_a[1]][point_a[0]].astype(int)
+            - graph_[point_b[1]][point_b[0]].astype(int)
+        )
         return cost
 
     def update_vertex(self, node):
-
         in_heap = False
         for i in self.open_set2:
             if i == node:
@@ -112,87 +143,95 @@ class d_star_lite:
                 self.h[(x, y)] = max(dx, dy)
 
     def compute_shortest_path(self):
-        while self.open_set2.top_key()[0][1][0] <= self.calc_key(self.position)[0] or self.rhs[self.position] > self.g[self.position]:
-
+        while (
+            self.open_set2.top_key()[0][1][0] <= self.calc_key(self.position)[0]
+            or self.rhs[self.position] > self.g[self.position]
+        ):
             node = self.open_set2.top_key()[0][0]
-            # print("NODE ", node)
 
             k_old = self.open_set2.top_key()[0][1][0]
 
             k_new = self.calc_key(node)[0]
-
 
             if k_old < k_new:  # update key
                 self.open_set2.update(node, (k_new, min(self.g[node], self.rhs[node])))
 
             # locally overconsistent
             elif self.g[node] > self.rhs[node]:
-
                 self.g[node] = self.rhs[node]
                 # dequeue
                 self.open_set2.remove(node)
 
                 for neigh in self.neighbours:
                     neigh_point = (node[0] + neigh[0], node[1] + neigh[1])
-                    if ((neigh_point[0] >= 0) and (neigh_point[0] < self.oryginal_graph.shape[0]) and (neigh_point[1] >= 0) and (
-                            neigh_point[1] < self.oryginal_graph.shape[1])):
+                    if (
+                        (neigh_point[0] >= 0)
+                        and (neigh_point[0] < self.oryginal_graph.shape[0])
+                        and (neigh_point[1] >= 0)
+                        and (neigh_point[1] < self.oryginal_graph.shape[1])
+                    ):
                         if neigh_point != self.end_point:
+                            neigh_point_cost = 1 + self.calc_cost(
+                                node, neigh_point, self.new_graph
+                            )
 
-                            neigh_point_cost = 1 + self.calc_cost(node, neigh_point, self.new_graph)
-
-                            self.rhs[neigh_point] = min(self.rhs[neigh_point], neigh_point_cost + self.g[node])
+                            self.rhs[neigh_point] = min(
+                                self.rhs[neigh_point], neigh_point_cost + self.g[node]
+                            )
 
                         # update cost for neighbours
                         self.update_vertex(neigh_point)
 
             # locally underconsistent
-            else: # self.g[node] < self.rhs[node]
-
+            else:
                 g_old = self.g[node]
                 self.g[node] = np.inf
 
                 # update node rhs
                 if node != self.end_point:
                     neigh_values2 = self.min_succ(node)
-                    self.rhs[node] = neigh_values2[min(neigh_values2, key=lambda k: neigh_values2[k])]
+                    self.rhs[node] = neigh_values2[
+                        min(neigh_values2, key=lambda k: neigh_values2[k])
+                    ]
                     self.update_vertex(node)
-
 
                 # update neighbours rhs
                 for neigh in self.neighbours:
                     neigh_point = (node[0] + neigh[0], node[1] + neigh[1])
-                    # neigh_point = (node[1] + neigh[1], node[0] + neigh[0])
-                    if ((neigh_point[0] >= 0) and (neigh_point[0] < self.oryginal_graph.shape[0]) and (
-                            neigh_point[1] >= 0) and (
-                            neigh_point[1] < self.oryginal_graph.shape[1])):
-
+                    if (
+                        (neigh_point[0] >= 0)
+                        and (neigh_point[0] < self.oryginal_graph.shape[0])
+                        and (neigh_point[1] >= 0)
+                        and (neigh_point[1] < self.oryginal_graph.shape[1])
+                    ):
                         cost1 = 1 + self.calc_cost(node, neigh_point, self.new_graph)
 
                         if self.rhs[neigh_point] == cost1 + g_old:
                             if neigh_point != self.end_point:
-
                                 neigh_values2 = self.min_succ(neigh_point)
 
-                                self.rhs[neigh_point] = neigh_values2[min(neigh_values2, key=lambda k: neigh_values2[k])]
+                                self.rhs[neigh_point] = neigh_values2[
+                                    min(neigh_values2, key=lambda k: neigh_values2[k])
+                                ]
 
                         self.update_vertex(neigh_point)
 
     def show_graph(self):
-
-        graph_df2 = pd.DataFrame(index= range(0, self.oryginal_graph.shape[1]), columns= range(0, self.oryginal_graph.shape[0]))
+        graph_df2 = pd.DataFrame(
+            index=range(0, self.oryginal_graph.shape[1]),
+            columns=range(0, self.oryginal_graph.shape[0]),
+        )
 
         for key, val in self.g.items():
             graph_df2.loc[key[1], key[0]] = (self.g[key], self.rhs[key])
 
             if key == self.position:
-                graph_df2.loc[key[1], key[0]] = (self.g[key], self.rhs[key], 'X')
-
-        print('breakpoint')
+                graph_df2.loc[key[1], key[0]] = (self.g[key], self.rhs[key], "X")
 
     def save_imgs(self):
-        save_path = '/home/maciej/PycharmProjects/path_planning_in_rough_terrain_/d_star_lite_example_4'
-        filename = 'd_star_lite_ex_' + str(len(self.path)) + '.png'
-        filename = save_path + '/' + filename
+        save_path = "/home/maciej/PycharmProjects/path_planning_in_rough_terrain_/d_star_lite_example_4"
+        filename = "d_star_lite_ex_" + str(len(self.path)) + ".png"
+        filename = save_path + "/" + filename
         cv2.imwrite(filename, self.img_to_go)
 
     def show_path_to_go(self):
@@ -205,17 +244,16 @@ class d_star_lite:
         self.img_to_go[self.img_to_go == 255] = 100
 
         while pos != self.end_point:
-
             neigh_values = {}
             for neigh in self.neighbours:
                 neigh_point = (pos[0] + neigh[0], pos[1] + neigh[1])
-                if ((neigh_point[0] >= 0) and (neigh_point[0] < self.oryginal_graph.shape[0]) and (
-                        neigh_point[1] >= 0) and (
-                        neigh_point[1] < self.oryginal_graph.shape[1])):
-                    # if self.g[neigh_point] == self.rhs[neigh_point]:
+                if (
+                    (neigh_point[0] >= 0)
+                    and (neigh_point[0] < self.oryginal_graph.shape[0])
+                    and (neigh_point[1] >= 0)
+                    and (neigh_point[1] < self.oryginal_graph.shape[1])
+                ):
                     neigh_values[neigh_point] = self.g[neigh_point]
-
-
 
             pos = min(neigh_values, key=lambda k: neigh_values[k])
             path_to_go.append(pos)
@@ -233,32 +271,29 @@ class d_star_lite:
             if point != self.start_point and point != self.end_point:
                 self.img_to_go[point[1]][point[0]] = (0, 255, 0)
 
-
         # Save images
         # self.save_imgs()
 
-        cv2.imshow('img to go', self.img_to_go)
+        cv2.imshow("img to go", self.img_to_go)
 
     def min_succ(self, point_):
-
         neigh_values2 = {}
         for neigh2 in self.neighbours:
             neigh_point = (point_[0] + neigh2[0], point_[1] + neigh2[1])
-            if ((neigh_point[0] >= 0) and (
-                    neigh_point[0] < self.oryginal_graph.shape[0]) and (
-                    neigh_point[1] >= 0) and (
-                    neigh_point[1] < self.oryginal_graph.shape[1])):
+            if (
+                (neigh_point[0] >= 0)
+                and (neigh_point[0] < self.oryginal_graph.shape[0])
+                and (neigh_point[1] >= 0)
+                and (neigh_point[1] < self.oryginal_graph.shape[1])
+            ):
                 if neigh_point != self.end_point:
-                    # print('neigh_point2', neigh_point2)
                     cost2 = 1 + self.calc_cost(point_, neigh_point, self.new_graph)
-                    # cost2 = self.new_graph[point_[1]][point_[0]].astype(int)
 
                     neigh_values2[neigh_point] = self.g[neigh_point] + cost2
 
         return neigh_values2
 
     def move_to_end(self):
-
         last_node = self.position
         self.initialize()
 
@@ -270,18 +305,14 @@ class d_star_lite:
         counter = 0
 
         while self.position != self.end_point:
-
-
-
             cv2.circle(self.mask, self.position, self.R, (0, 0, 0), -1)
             self.new_graph = cv2.add(self.oryginal_graph, self.mask)
             self.new_graph[self.new_graph == 255] = 100
 
-            #----------------------------
+            # ----------------------------
             self.show_path_to_go()
             cv2.waitKey(100)
-            #----------------------------
-
+            # ----------------------------
 
             self.img_to_go = self.orginal_img.copy()
 
@@ -293,15 +324,13 @@ class d_star_lite:
             for neigh in self.neighbours:
                 neigh_point = (self.position[0] + neigh[0], self.position[1] + neigh[1])
                 # neigh_point = (self.position[1] + neigh[1], self.position[0] + neigh[0])
-                if ((neigh_point[0] >= 0) and (neigh_point[0] < self.oryginal_graph.shape[0]) and (
-                        neigh_point[1] >= 0) and (
-                        neigh_point[1] < self.oryginal_graph.shape[1])):
-
-                    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                if (
+                    (neigh_point[0] >= 0)
+                    and (neigh_point[0] < self.oryginal_graph.shape[0])
+                    and (neigh_point[1] >= 0)
+                    and (neigh_point[1] < self.oryginal_graph.shape[1])
+                ):
                     neigh_values[neigh_point] = self.g[neigh_point]
-                    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-            # print('self.position', self.position)
 
             self.position = min(neigh_values, key=lambda k: neigh_values[k])
 
@@ -309,22 +338,18 @@ class d_star_lite:
 
             self.path.append(self.position)
 
-
             if (self.new_graph - self.old_graph).any():
-                # print('graph changed')
-
                 self.K_m = self.K_m + self.h[last_node]
 
                 last_node = self.position
 
                 # find changes between maps
-                dif = (self.new_graph - self.old_graph)
+                dif = self.new_graph - self.old_graph
                 list_with_changes = []
                 for x in range(dif.shape[1]):
                     for y in range(dif.shape[0]):
                         if dif[y][x] and (x, y) != self.end_point:
                             list_with_changes.append((x, y))
-
 
                 # update cost outgoing edges
                 # u - point
@@ -333,24 +358,32 @@ class d_star_lite:
                     for neigh in self.neighbours:
                         neigh_point = (point[0] + neigh[0], point[1] + neigh[1])
 
-                        if ((neigh_point[0] >= 0) and (neigh_point[0] < self.oryginal_graph.shape[0]) and (
-                                neigh_point[1] >= 0) and (
-                                neigh_point[1] < self.oryginal_graph.shape[1])):
-
-                            c_old = 1 + self.calc_cost(point, neigh_point, self.old_graph)
-                            c_new = 1 + self.calc_cost(point, neigh_point, self.new_graph)
+                        if (
+                            (neigh_point[0] >= 0)
+                            and (neigh_point[0] < self.oryginal_graph.shape[0])
+                            and (neigh_point[1] >= 0)
+                            and (neigh_point[1] < self.oryginal_graph.shape[1])
+                        ):
+                            c_old = 1 + self.calc_cost(
+                                point, neigh_point, self.old_graph
+                            )
+                            c_new = 1 + self.calc_cost(
+                                point, neigh_point, self.new_graph
+                            )
 
                             if c_old > c_new:
                                 if neigh_point != self.end_point:
-
-                                    self.rhs[point] = min(self.rhs[point], c_new + self.g[neigh_point])
-
+                                    self.rhs[point] = min(
+                                        self.rhs[point], c_new + self.g[neigh_point]
+                                    )
 
                             elif self.rhs[point] == (c_old + self.g[neigh_point]):
                                 if neigh_point != self.end_point:
                                     point_succ = self.min_succ(point)
 
-                                    self.rhs[point] = point_succ[min(point_succ, key=lambda k: point_succ[k])]
+                                    self.rhs[point] = point_succ[
+                                        min(point_succ, key=lambda k: point_succ[k])
+                                    ]
 
                             self.update_vertex(point)
 
@@ -360,23 +393,35 @@ class d_star_lite:
                 for point in list_with_changes:
                     for neigh in self.neighbours:
                         neigh_point = (point[0] + neigh[0], point[1] + neigh[1])
-                        if ((neigh_point[0] >= 0) and (neigh_point[0] < self.oryginal_graph.shape[0]) and (
-                                neigh_point[1] >= 0) and (
-                                neigh_point[1] < self.oryginal_graph.shape[1])):
-
-                            c_old = 1 + self.calc_cost(point, neigh_point, self.old_graph)
-                            c_new = 1 + self.calc_cost(point, neigh_point, self.new_graph)
+                        if (
+                            (neigh_point[0] >= 0)
+                            and (neigh_point[0] < self.oryginal_graph.shape[0])
+                            and (neigh_point[1] >= 0)
+                            and (neigh_point[1] < self.oryginal_graph.shape[1])
+                        ):
+                            c_old = 1 + self.calc_cost(
+                                point, neigh_point, self.old_graph
+                            )
+                            c_new = 1 + self.calc_cost(
+                                point, neigh_point, self.new_graph
+                            )
 
                             if c_old > c_new:
                                 if neigh_point != self.end_point:
-                                    self.rhs[neigh_point] = min(self.rhs[neigh_point], c_new + self.g[point])
+                                    self.rhs[neigh_point] = min(
+                                        self.rhs[neigh_point], c_new + self.g[point]
+                                    )
 
                             elif self.rhs[neigh_point] == (c_old + self.g[point]):
                                 if neigh_point != self.end_point:
-
                                     neigh_point_succ = self.min_succ(neigh_point)
 
-                                    self.rhs[neigh_point] = neigh_point_succ[min(neigh_point_succ, key=lambda k: neigh_point_succ[k])]
+                                    self.rhs[neigh_point] = neigh_point_succ[
+                                        min(
+                                            neigh_point_succ,
+                                            key=lambda k: neigh_point_succ[k],
+                                        )
+                                    ]
 
                             self.update_vertex(neigh_point)
 
@@ -384,13 +429,10 @@ class d_star_lite:
                 self.compute_shortest_path()
                 end = time.time()
 
-                # print(end - start)
                 sum = sum + end - start
                 counter = counter + 1
 
             self.old_graph = self.new_graph
 
-        # print('self.path', self.path)
-        print('Mean time', sum/counter)
+        print("Mean time", sum / counter)
         return self.path
-
