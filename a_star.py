@@ -2,6 +2,7 @@
 
 import numpy as np
 import time
+import networkx as nx
 
 
 def a_star(start, end, img, slope):
@@ -84,3 +85,48 @@ def a_star(start, end, img, slope):
 
             elif neigh_score >= g_score[current_neigh]:
                 continue
+
+
+
+def add_edge_if_not_exists(G, node1, node2, weight):
+    if not G.has_edge(node1, node2) and not G.has_edge(node2, node1):
+        G.add_edge(node1, node2, weight=weight)
+    return G
+
+def a_star_2(start, end, img, slope):
+    # Tworzenie grafu z macierzy 2D
+    G = nx.Graph()
+    rows, cols = img.shape
+
+    # Dodawanie wierzchołków do grafu
+    for i in range(rows):
+        for j in range(cols):
+            G.add_node((i, j))
+
+    for i in range(rows):
+        for j in range(cols):
+            neighbors = [(i-1, j), (i+1, j), (i, j-1), (i, j+1)]
+            neighbors.extend([(i-1, j-1), (i-1, j+1), (i+1, j-1), (i+1, j+1)])
+
+            for neighbor in neighbors:
+                if 0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols:
+                    node_cost = abs(img[i, j] - img[neighbor[0], neighbor[1]])
+                    G = add_edge_if_not_exists(G, (i, j), neighbor, node_cost)
+
+
+    def heuristic(u, v):
+        # Odległość euklidesowa pomiędzy wierzchołkami u i v
+        x1, y1 = u
+        x2, y2 = v
+        return np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
+
+    # Obliczanie ścieżki algorytmem A*
+    path = nx.astar_path(G, start, end, weight='weight', heuristic=heuristic)
+
+    return path
+
+
+
+
+
+
