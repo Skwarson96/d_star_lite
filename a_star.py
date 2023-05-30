@@ -87,7 +87,6 @@ def a_star(start, end, img, slope):
                 continue
 
 
-
 def add_edge_if_not_exists(G, node1, node2):
     if not G.has_edge(node1, node2) and not G.has_edge(node2, node1):
         G.add_edge(node1, node2)
@@ -104,11 +103,19 @@ def a_star_2(start, end, img, slope):
 
     for i in range(rows):
         for j in range(cols):
-            neighbors = [(i-1, j), (i+1, j), (i, j-1), (i, j+1), (i-1, j-1), (i-1, j+1), (i+1, j-1), (i+1, j+1)]
+            neighbors = [
+                (i - 1, j),
+                (i + 1, j),
+                (i, j - 1),
+                (i, j + 1),
+                (i - 1, j - 1),
+                (i - 1, j + 1),
+                (i + 1, j - 1),
+                (i + 1, j + 1),
+            ]
             for neighbor in neighbors:
                 if 0 <= neighbor[0] < rows and 0 <= neighbor[1] < cols:
                     G = add_edge_if_not_exists(G, (i, j), neighbor)
-
 
     def weight(u, v, edge):
         node_cost = abs(img[u[1], u[0]] - img[v[1], v[0]])
@@ -118,7 +125,6 @@ def a_star_2(start, end, img, slope):
         x1, y1 = u
         x2, y2 = v
         return np.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2)
-
 
     path = nx.astar_path(G, start, end, weight=weight, heuristic=heuristic)
 
