@@ -15,7 +15,7 @@ from priority_queue.priority_queue import priority_queue
 
 
 class d_star_lite:
-    def __init__(self, start_point, end_point, graph, img, R):
+    def __init__(self, start_point, end_point, graph, img, R, shape_resize, save_path=False):
         self.rhs = {}
         self.g = {}
         self.h = {}
@@ -52,9 +52,10 @@ class d_star_lite:
         self.start_point = start_point
         self.end_point = end_point
 
-        self.shape_ersize = 64
+        self.save_path = save_path
+        self.shape_resize = shape_resize
         graph = cv2.resize(
-            graph, (self.shape_ersize, self.shape_ersize), interpolation=cv2.INTER_AREA
+            graph, (self.shape_resize, self.shape_resize), interpolation=cv2.INTER_AREA
         )
 
         self.oryginal_graph = graph
@@ -67,17 +68,17 @@ class d_star_lite:
 
         self.orginal_img = cv2.resize(
             self.orginal_img,
-            (self.shape_ersize, self.shape_ersize),
+            (self.shape_resize, self.shape_resize),
             interpolation=cv2.INTER_AREA,
         )
         self.img = cv2.resize(
             self.img,
-            (self.shape_ersize, self.shape_ersize),
+            (self.shape_resize, self.shape_resize),
             interpolation=cv2.INTER_AREA,
         )
         self.img_to_go = cv2.resize(
             self.img_to_go,
-            (self.shape_ersize, self.shape_ersize),
+            (self.shape_resize, self.shape_resize),
             interpolation=cv2.INTER_AREA,
         )
 
@@ -229,10 +230,8 @@ class d_star_lite:
                 graph_df2.loc[key[1], key[0]] = (self.g[key], self.rhs[key], "X")
 
     def save_imgs(self):
-        save_path = "/home/maciej/PycharmProjects/path_planning_in_rough_terrain_/d_star_lite_example_4"
-        filename = "d_star_lite_ex_" + str(len(self.path)) + ".png"
-        filename = save_path + "/" + filename
-        cv2.imwrite(filename, self.img_to_go)
+        filename = str(len(self.path))+'.jpg'
+        cv2.imwrite(self.save_path+'/'+filename, self.img_to_go)
 
     def show_path_to_go(self):
         pos = self.position
@@ -272,7 +271,8 @@ class d_star_lite:
                 self.img_to_go[point[1]][point[0]] = (0, 255, 0)
 
         # Save images
-        # self.save_imgs()
+        if self.save_path:
+            self.save_imgs()
 
         cv2.imshow("img to go", self.img_to_go)
 

@@ -6,7 +6,7 @@ import os
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-from a_star import a_star
+from a_star import a_star, a_star_2
 
 from d_star_lite_algorithm import d_star_lite
 
@@ -37,10 +37,10 @@ def surface_3d_plot(path, img):
 
     # create the figure
     fig = plt.figure(figsize=(8, 6), dpi=150)
-    ax = fig.gca(projection="3d")
+    ax = fig.add_subplot(111, projection='3d')
 
-    ax.plot(X, Y, Z, c="r", marker=".", alpha=1)
     ax.plot_surface(xx, yy, img, rstride=1, cstride=1, cmap="gray", edgecolor="none")
+    ax.plot(X, Y, Z, c="r", marker=".", alpha=1)
 
     ax.view_init(azim=145, elev=60)
 
@@ -63,8 +63,8 @@ if __name__ == "__main__":
     img2 = img.copy()
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    start_point = (34, 54)  # (x, y)
-    end_point = (37, 128)
+    start_point = (10, 10)  # (x, y)
+    end_point = (30, 30)
     # start point
     cv2.circle(img2, start_point, 2, (0, 0, 255), -1)
     # end point
@@ -72,15 +72,17 @@ if __name__ == "__main__":
 
     slope = 0
     # A star
-    path_from_start_to_end = a_star(start_point, end_point, img, slope)
+    # path_from_start_to_end = a_star(start_point, end_point, img, slope)
+    # path_from_start_to_end_2 = a_star_2(start_point, end_point, img, slope)
 
-    plot_2d_path(path_from_start_to_end, img2)
-
-    surface_3d_plot(path_from_start_to_end, img)
+    # surface_3d_plot(path_from_start_to_end, img)
 
     # D star
-    # d_star(start_point, end_point, img, img2)
-    # d_star_ = d_star_lite(start_point, end_point, img, img2, R=50)
-    # d_star_.move_to_end()
+    save_path = './imgs/test_dir/'
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+
+    d_star_ = d_star_lite(start_point, end_point, img, img2, R=50, shape_resize=64, save_path=save_path)
+    d_star_.move_to_end()
 
     print("done")
