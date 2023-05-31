@@ -56,33 +56,30 @@ if __name__ == "__main__":
     print("path_planning")
 
     dirname = os.path.dirname(__file__)
-    filename = os.path.join(dirname, "./maps/map-new6-real.bmp")
+    filename = "map-new1-real.bmp"
+    path_to_img = os.path.join(dirname, "./maps/" + filename)
 
     # read image
-    img = cv2.imread(filename, 1)
+    img = cv2.imread(path_to_img, 1)
     img2 = img.copy()
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     start_point = (10, 10)  # (x, y)
-    end_point = (30, 30)
-    # start point
-    cv2.circle(img2, start_point, 2, (0, 0, 255), -1)
-    # end point
-    cv2.circle(img2, end_point, 2, (0, 255, 0), -1)
+    end_point = (50, 50)
 
     slope = 0
     # A star
     # path_from_start_to_end = a_star(start_point, end_point, img, slope)
-    # path_from_start_to_end_2 = a_star_2(start_point, end_point, img, slope)
-
     # surface_3d_plot(path_from_start_to_end, img)
 
     # D star
-    save_path = './imgs/test_dir/'
+    radius = 50
+    filename = filename+'_'+str(radius)
+    save_path = './imgs/'+filename+'/'
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    d_star_ = d_star_lite(start_point, end_point, img, img2, R=50, shape_resize=64, save_path=save_path)
+    d_star_ = d_star_lite(start_point, end_point, img, img2, R=radius, shape_resize=64, save_path=save_path)
     d_star_.move_to_end()
 
     print("done")

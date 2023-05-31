@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import heapq
+import matplotlib.pyplot as plt
 
 import numpy as np
 
@@ -81,7 +82,7 @@ class d_star_lite:
             (self.shape_resize, self.shape_resize),
             interpolation=cv2.INTER_AREA,
         )
-
+        self.img_to_save = None
         self.path = []
 
         self.R = R
@@ -231,7 +232,8 @@ class d_star_lite:
 
     def save_imgs(self):
         filename = str(len(self.path))+'.jpg'
-        cv2.imwrite(self.save_path+'/'+filename, self.img_to_go)
+        cv2.imwrite(self.save_path+'/'+filename, self.img_to_save, [cv2.IMWRITE_PNG_COMPRESSION, 0])
+        # plt.imsave(self.save_path+'/'+filename, self.img_to_save)
 
     def show_path_to_go(self):
         pos = self.position
@@ -259,7 +261,6 @@ class d_star_lite:
 
         cv2.circle(self.img_to_go, self.start_point, 2, (235, 23, 19), -1)
         cv2.circle(self.img_to_go, self.end_point, 2, (0, 255, 230), -1)
-
         cv2.circle(self.img_to_go, self.position, self.R, (207, 203, 4), 1)
 
         for point in path_to_go:
@@ -270,11 +271,14 @@ class d_star_lite:
             if point != self.start_point and point != self.end_point:
                 self.img_to_go[point[1]][point[0]] = (0, 255, 0)
 
+        cv2.circle(self.img_to_go, self.position, 1, (29, 137, 219), -1)
+
+        self.img_to_save = cv2.resize(self.img_to_go, (600, 600), interpolation=cv2.INTER_NEAREST)
+        cv2.imshow("img to go", self.img_to_save)
         # Save images
         if self.save_path:
             self.save_imgs()
 
-        cv2.imshow("img to go", self.img_to_go)
 
     def min_succ(self, point_):
         neigh_values2 = {}
