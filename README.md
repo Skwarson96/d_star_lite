@@ -7,18 +7,18 @@ The A* algorithm is a popular pathfinding algorithm that efficiently finds the s
 D* Lite Algorithm
 
 
-<div align="center">
+<p align="center">
 <table>
   <tr>
     <td align="center">
-      <img src="https://github.com/Skwarson96/d_star_lite/blob/main/imgs/map-new1-real.bmp_Astar.jpg" width="300"/>
+      <img src="https://github.com/Skwarson96/d_star_lite/blob/main/imgs/map-new1-real.bmp_Astar.jpg" width="200"/>
     </td>
     <td align="center">
-      <img src="https://github.com/Skwarson96/d_star_lite/blob/main/imgs/map-new6-real.bmp_Astar.jpg" width="300"/>
+      <img src="https://github.com/Skwarson96/d_star_lite/blob/main/imgs/map-new6-real.bmp_Astar.jpg" width="200"/>
      </td>
   </tr>
 </table>
-</div>
+</p>
 
 
 
@@ -28,43 +28,43 @@ algorithm is an incremental search algorithm that provides efficient path update
 # Examples
 In the visualizations, the robot (orange cross) moves from the starting point to the destination. It is equipped with a sensor that gives it knowledge about the world around it in a radius of R. The robot on the way (green) to the destination learns new parts of the map and replans the path (red)
 
-<div align="center">
+<p align="center">
 <table>
   <tr>
     <td align="center">
-      <img src="https://github.com/Skwarson96/d_star_lite/blob/main/imgs/gifs/map1_r10.gif" width="300"/>
+      <img src="https://github.com/Skwarson96/d_star_lite/blob/main/imgs/gifs/map1_r10.gif" width="200"/>
       <br>R=10
     </td>
     <td align="center">
-      <img src="https://github.com/Skwarson96/d_star_lite/blob/main/imgs/gifs/map1_r30.gif" width="300"/>
+      <img src="https://github.com/Skwarson96/d_star_lite/blob/main/imgs/gifs/map1_r30.gif" width="200"/>
       <br>R=30
     </td>
     <td align="center">
-      <img src="https://github.com/Skwarson96/d_star_lite/blob/main/imgs/gifs/map1_r50.gif" width="300"/>
+      <img src="https://github.com/Skwarson96/d_star_lite/blob/main/imgs/gifs/map1_r50.gif" width="200"/>
       <br>R=50
     </td>
   </tr>
 </table>
-</div>
+</p>
 
-<div align="center">
+<p align="center">
 <table>
   <tr>
     <td align="center">
-      <img src="https://github.com/Skwarson96/d_star_lite/blob/main/imgs/gifs/map6_r10.gif" width="300"/>
+      <img src="https://github.com/Skwarson96/d_star_lite/blob/main/imgs/gifs/map6_r10.gif" width="200"/>
       <br>R=10
     </td>
     <td align="center">
-      <img src="https://github.com/Skwarson96/d_star_lite/blob/main/imgs/gifs/map6_r30.gif" width="300"/>
+      <img src="https://github.com/Skwarson96/d_star_lite/blob/main/imgs/gifs/map6_r30.gif" width="200"/>
       <br>R=30
     </td>
     <td align="center">
-      <img src="https://github.com/Skwarson96/d_star_lite/blob/main/imgs/gifs/map6_r50.gif" width="300"/>
+      <img src="https://github.com/Skwarson96/d_star_lite/blob/main/imgs/gifs/map6_r50.gif" width="200"/>
       <br>R=50
     </td>
   </tr>
 </table>
-</div>
+</p>
 
 
   
