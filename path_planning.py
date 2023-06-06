@@ -17,9 +17,11 @@ def plot_2d_path(path, img2, save_path=None):
     if path == None:
         print("Path no exist")
         return 0
-
     for point in path:
-        cv2.circle(img2, point, 1, (255, 0, 0), -1)
+        img2[point[1]][point[0]] = (0, 255, 0)
+
+    cv2.circle(img2, path[0], 2, (255, 0, 0), -1)
+    cv2.circle(img2, path[-1], 2, (0, 255, 255), -1)
 
     cv2.imshow("img2", img2)
     cv2.waitKey()
@@ -59,7 +61,7 @@ if __name__ == "__main__":
     print("path_planning")
 
     dirname = os.path.dirname(__file__)
-    filename = "map-new6-real.bmp"
+    filename = "map-new1-real.bmp"
     path_to_img = os.path.join(dirname, "./maps/" + filename)
 
     # read image
@@ -77,19 +79,19 @@ if __name__ == "__main__":
 
     slope = 0
     # A star
-    # path_to_save = os.path.join(dirname, "./imgs/" + filename)
-    # path_from_start_to_end = a_star(start_point, end_point, img, slope)
-    # plot_2d_path(path=path_from_start_to_end, img2=img2, save_path=path_to_save)
+    path_to_save = os.path.join(dirname, "./imgs/" + filename)
+    path_from_start_to_end = a_star(start_point, end_point, img, slope)
+    plot_2d_path(path=path_from_start_to_end, img2=img2, save_path=path_to_save)
     # surface_3d_plot(path_from_start_to_end, img)
 
     # D star
-    radius = 50
-    filename = filename+'_'+str(radius)
-    save_path = './imgs/'+filename+'/'
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
-
-    d_star_ = d_star_lite(start_point, end_point, img, img2, R=radius, save_path=save_path)
-    d_star_.move_to_end()
+    # radius = 50
+    # filename = filename+'_'+str(radius)
+    # save_path = './imgs/'+filename+'/'
+    # if not os.path.exists(save_path):
+    #     os.makedirs(save_path)
+    #
+    # d_star_ = d_star_lite(start_point, end_point, img, img2, R=radius, save_path=save_path)
+    # d_star_.move_to_end()
 
     print("done")
