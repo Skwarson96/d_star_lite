@@ -1,22 +1,17 @@
 #!/usr/bin/env python
-import heapq
-import matplotlib.pyplot as plt
 
 import numpy as np
-
-np.set_printoptions(threshold=np.inf)
 import pandas as pd
-import matplotlib.pyplot as plt
 import cv2
-import os
 import time
 
-from a_star import a_star
 from priority_queue.priority_queue import priority_queue
+
+np.set_printoptions(threshold=np.inf)
 
 
 class d_star_lite:
-    def __init__(self, start_point, end_point, graph, img, R, shape_resize, save_path=False):
+    def __init__(self, start_point, end_point, graph, img, R, save_path=False):
         self.rhs = {}
         self.g = {}
         self.h = {}
@@ -54,10 +49,11 @@ class d_star_lite:
         self.end_point = end_point
 
         self.save_path = save_path
-        self.shape_resize = shape_resize
-        graph = cv2.resize(
-            graph, (self.shape_resize, self.shape_resize), interpolation=cv2.INTER_AREA
-        )
+
+        self.shape_resize = img.shape[0]
+        # graph = cv2.resize(
+        #     graph, (self.shape_resize, self.shape_resize), interpolation=cv2.INTER_AREA
+        # )
 
         self.oryginal_graph = graph
         self.new_graph = graph
@@ -67,21 +63,21 @@ class d_star_lite:
         self.img = img.copy()
         self.img_to_go = img.copy()
 
-        self.orginal_img = cv2.resize(
-            self.orginal_img,
-            (self.shape_resize, self.shape_resize),
-            interpolation=cv2.INTER_AREA,
-        )
-        self.img = cv2.resize(
-            self.img,
-            (self.shape_resize, self.shape_resize),
-            interpolation=cv2.INTER_AREA,
-        )
-        self.img_to_go = cv2.resize(
-            self.img_to_go,
-            (self.shape_resize, self.shape_resize),
-            interpolation=cv2.INTER_AREA,
-        )
+        # self.orginal_img = cv2.resize(
+        #     self.orginal_img,
+        #     (self.shape_resize, self.shape_resize),
+        #     interpolation=cv2.INTER_AREA,
+        # )
+        # self.img = cv2.resize(
+        #     self.img,
+        #     (self.shape_resize, self.shape_resize),
+        #     interpolation=cv2.INTER_AREA,
+        # )
+        # self.img_to_go = cv2.resize(
+        #     self.img_to_go,
+        #     (self.shape_resize, self.shape_resize),
+        #     interpolation=cv2.INTER_AREA,
+        # )
         self.img_to_save = None
         self.path = []
 
